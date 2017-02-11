@@ -8,6 +8,7 @@ import logging
 import sys
 import argparse
 
+import deckstore
 from deckserver import app
 
 
@@ -37,4 +38,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)-15s:%(message)s',
                         level=logging.DEBUG if args.debug else logging.INFO)
 
+    deckstore.init('http://127.0.0.1:5000/api/schema')
     app.run(host=args.host, port=args.port)
+    deckstore.term()

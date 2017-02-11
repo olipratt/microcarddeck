@@ -6,6 +6,7 @@ import logging
 from flask import Flask
 from flask_restplus import Resource, Api, fields
 
+import deckstore
 
 log = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -55,5 +56,5 @@ class DeckCollection(Resource):
     @api.response(201, 'Deck successfully created.')
     def post(self):
         """Creates a new deck."""
-        # create_category(request.json)
-        return {"id": 1}, 201
+        deck_id = deckstore.new_deck()
+        return {"id": deck_id}, 201
