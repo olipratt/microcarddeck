@@ -68,6 +68,36 @@ class MicroCardDeckTestCase(unittest.TestCase):
         response_data = json.loads(rv.data.decode())
         self.assertIsInstance(response_data.get("id"), int)
 
+    @responses.activate
+    def test_decks_resource_get_success(self):
+        datastore_response = {"name": "12345", "data": {}}
+        deckserver_response = {"id": 12345, "cards_remaining": 0}
+        responses.add(responses.GET, DATASTORE_URL_BASE + '/apps/12345',
+                      json=datastore_response, status=200,
+                      content_type=CONTENT_TYPE_JSON)
+
+        rv = self.app.get(API_URL_PREFIX + '/decks/12345')
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(json.loads(rv.data.decode()), deckserver_response)
+
+    @responses.activate
+    def test_decks_resource_get_failure(self):
+        responses.add(responses.GET, DATASTORE_URL_BASE + '/apps/12345',
+                      body=None, status=404,
+                      content_type=CONTENT_TYPE_JSON)
+
+        rv = self.app.get(API_URL_PREFIX + '/decks/12345')
+        self.assertEqual(rv.status_code, 404)
+
+    @responses.activate
+    def test_decks_resource_delete(self):
+        responses.add(responses.DELETE, DATASTORE_URL_BASE + '/apps/12345',
+                      body=None, status=204,
+                      content_type=CONTENT_TYPE_JSON)
+
+        rv = self.app.delete(API_URL_PREFIX + '/decks/12345')
+        self.assertEqual(rv.status_code, 204)
+
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)-15s:%(funcName)s:%(message)s',

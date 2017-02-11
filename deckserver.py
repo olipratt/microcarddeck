@@ -33,6 +33,12 @@ DeckId = api.model('Deck ID', {
     'id': fields.Integer(required=True, description='Deck ID', example=12345),
 })
 
+DeckCardsRemaining = api.model('Cards Remaining', {
+    'cards_remaining': fields.Integer(description='Cards Remaining'),
+})
+
+Deck = api.inherit('Deck', DeckId, DeckCardsRemaining)
+
 
 @schema_ns.route('')
 class SchemaResource(Resource):
@@ -60,3 +66,28 @@ class DeckCollection(Resource):
         """Creates a new deck."""
         deck_id = deckstore.new_deck()
         return {"id": deck_id}, 201
+
+
+@deck_ns.route('/<deckid>')
+@api.response(404, 'Deck not found.')
+class AppsResource(Resource):
+    """ Individual resources representing a deck. """
+
+    @api.marshal_with(Deck)
+    def get(self, deckid):
+        """Returns the data for a deck."""
+        log.debug("Getting deck: %r", deckid)
+        deck_data = deckstore.get_deck(deckid)
+        if deck_data is None:
+            log.debug("No deck found")
+            return None, 404
+        else:
+            log.debug("Found deck")
+            return deck_data
+
+    @api.response(204, 'Deck successfully deleted.')
+    def delete(self, deckid):
+        """Deletes a deck."""
+        log.debug("Deleting deck: %r", deckid)
+        deckstore.delete_deck(deckid)
+        return None, 204
