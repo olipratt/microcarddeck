@@ -30,9 +30,14 @@ class MicroCardDeckTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_decks_collection_empty(self):
-        rv = self.app.get(self.url_prefix + '/deck')
+        rv = self.app.get(self.url_prefix + '/decks')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), [])
+
+    def test_decks_collection_create(self):
+        rv = self.app.post(self.url_prefix + '/decks')
+        self.assertEqual(rv.status_code, 201)
+        self.assertEqual(json.loads(rv.data.decode()), {"id": 1})
 
 
 if __name__ == '__main__':

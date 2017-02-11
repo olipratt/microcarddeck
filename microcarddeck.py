@@ -27,7 +27,7 @@ api = Api(app,
 
 
 # This collects the API operations into named groups under a root URL.
-deck_ns = api.namespace('deck', description='Card deck related operations')
+deck_ns = api.namespace('decks', description='Card deck related operations')
 schema_ns = api.namespace('schema', description="This API's schema operations")
 
 # Specifications of the objects accepted/returned by the API.
@@ -55,6 +55,13 @@ class DeckCollection(Resource):
         """Returns the list of deck ids."""
         log.debug("Listing all decks")
         return []
+
+    @api.marshal_with(DeckId)
+    @api.response(201, 'Deck successfully created.')
+    def post(self):
+        """Creates a new deck."""
+        # create_category(request.json)
+        return {"id": 1}, 201
 
 
 def parse_args(raw_args):
