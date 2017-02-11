@@ -52,7 +52,7 @@ class DeckCollection(Resource):
     def get(self):
         """Returns the list of deck ids."""
         log.debug("Listing all decks")
-        return []
+        return deckstore.list_decks()
 
     @api.marshal_with(DeckId)
     @api.response(201, 'Deck successfully created.')

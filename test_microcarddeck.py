@@ -34,7 +34,12 @@ class MicroCardDeckTestCase(unittest.TestCase):
         rv = self.app.get(API_URL_PREFIX + '/schema')
         self.assertEqual(rv.status_code, 200)
 
+    @responses.activate
     def test_decks_collection_empty(self):
+        responses.add(responses.GET, DATASTORE_URL_BASE + '/apps',
+                      body="[]", status=200,
+                      content_type=CONTENT_TYPE_JSON)
+
         rv = self.app.get(API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), [])
