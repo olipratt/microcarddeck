@@ -45,8 +45,9 @@ class DeckStoreConnection():
 
     def list_decks(self):
         response_data = self._client.request(self._get_decks_list()).data
-        log.debug("Found decks as: %r", response_data)
-        return response_data
+        deck_ids = [int(entry.name) for entry in response_data]
+        log.debug("Found decks as: %r", deck_ids)
+        return deck_ids
 
 
 def init(schema_path):

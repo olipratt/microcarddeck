@@ -45,6 +45,18 @@ class MicroCardDeckTestCase(unittest.TestCase):
         self.assertEqual(json.loads(rv.data.decode()), [])
 
     @responses.activate
+    def test_decks_collection_populated(self):
+        datastore_response = [{"name": "12345"}, {"name": "67890"}]
+        deckserver_response = [{"id": 12345}, {"id": 67890}]
+        responses.add(responses.GET, DATASTORE_URL_BASE + '/apps',
+                      json=datastore_response, status=200,
+                      content_type=CONTENT_TYPE_JSON)
+
+        rv = self.app.get(API_URL_PREFIX + '/decks')
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(json.loads(rv.data.decode()), deckserver_response)
+
+    @responses.activate
     def test_decks_collection_create(self):
         url_re = re.compile(DATASTORE_URL_BASE + r'/apps/\d+')
         responses.add(responses.PUT, url_re,
