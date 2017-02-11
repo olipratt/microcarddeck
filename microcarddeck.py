@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 
 def parse_args(raw_args):
     parser = argparse.ArgumentParser(description='REST Playing Card Deck')
+    parser.add_argument('datastore_schema', metavar='SCHEMA-URL', type=str,
+                        help='URL of Swagger schema for the datastore to use')
     parser.add_argument('--host', metavar='IP', type=str,
                         default=None,
                         help="hostname to listen on - set this to '0.0.0.0' "
@@ -37,7 +39,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)-15s:%(message)s',
                         level=logging.DEBUG if args.debug else logging.INFO)
+    logging.getLogger("pyswagger").setLevel(logging.WARNING)
 
-    deckstore.init('http://127.0.0.1:5000/api/schema')
+    deckstore.init(args.datastore_schema)
     app.run(host=args.host, port=args.port)
     deckstore.term()
