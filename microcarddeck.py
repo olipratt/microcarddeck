@@ -8,8 +8,7 @@ import logging
 import sys
 import argparse
 
-import deckstore
-from deckserver import app
+from deckserver import app, deckstore
 
 
 log = logging.getLogger(__name__)

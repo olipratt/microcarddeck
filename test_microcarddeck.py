@@ -6,7 +6,9 @@ import re
 
 import microcarddeck
 import deckstore
+from deckserver import API_URL_PREFIX
 
+DATASTORE_SCHEMA_PATH = 'test_schema.json'
 DATASTORE_URL_BASE = 'http://127.0.0.1:5000/api'
 CONTENT_TYPE_JSON = 'application/json'
 
@@ -18,11 +20,8 @@ class MicroCardDeckTestCase(unittest.TestCase):
         # better error reports.
         microcarddeck.app.config['TESTING'] = True
 
+        deckstore.init(DATASTORE_SCHEMA_PATH)
         self.app = microcarddeck.app.test_client()
-
-        deckstore.init('test_schema.json')
-
-        self.url_prefix = "/api"
 
     def tearDown(self):
         deckstore.term()
@@ -32,11 +31,11 @@ class MicroCardDeckTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_schema(self):
-        rv = self.app.get(self.url_prefix + '/schema')
+        rv = self.app.get(API_URL_PREFIX + '/schema')
         self.assertEqual(rv.status_code, 200)
 
     def test_decks_collection_empty(self):
-        rv = self.app.get(self.url_prefix + '/decks')
+        rv = self.app.get(API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), [])
 
@@ -47,7 +46,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       body=None, status=204,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.post(self.url_prefix + '/decks')
+        rv = self.app.post(API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 201)
         response_data = json.loads(rv.data.decode())
         self.assertIsInstance(response_data.get("id"), int)

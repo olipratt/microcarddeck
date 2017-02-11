@@ -9,17 +9,19 @@ from flask_restplus import Resource, Api, fields
 import deckstore
 
 log = logging.getLogger(__name__)
+
 app = Flask(__name__)
 
 # Use a non-empty 'prefix' (becomes swagger 'basePath') for interop reasons -
 # if it's empty then the basePath is '/', which with an API enpoint appended
 # becomes '//<endpoint>' (because they are always prefixed themselves with a
 # '/') and that is not equivalent to '/<endpoint'.
+API_URL_PREFIX = '/api'
 api = Api(app,
           version='1.0',
           title='Playing Card Deck API',
           description='A Simple REST Playing Card Deck API',
-          prefix='/api')
+          prefix=API_URL_PREFIX)
 
 
 # This collects the API operations into named groups under a root URL.
