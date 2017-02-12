@@ -8,7 +8,7 @@ import logging
 import sys
 import argparse
 
-from deckserver import app, deckstore
+import deckserver
 
 
 log = logging.getLogger(__name__)
@@ -39,6 +39,4 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)-15s:%(message)s',
                         level=logging.DEBUG if args.debug else logging.INFO)
 
-    deckstore.init(args.datastore_schema)
-    app.run(host=args.host, port=args.port)
-    deckstore.term()
+    deckserver.run(args.datastore_schema, host=args.host, port=args.port)

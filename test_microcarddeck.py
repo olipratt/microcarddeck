@@ -4,9 +4,7 @@ import json
 import responses
 import re
 
-import microcarddeck
-import deckstore
-from deckserver import API_URL_PREFIX
+import deckserver
 
 DATASTORE_SCHEMA_PATH = 'test_schema.json'
 DATASTORE_URL_BASE = 'http://127.0.0.1:5000/api'
@@ -18,20 +16,21 @@ class MicroCardDeckTestCase(unittest.TestCase):
     def setUp(self):
         # Disable the error catching during request handling so that you get
         # better error reports.
-        microcarddeck.app.config['TESTING'] = True
+        deckserver.app.config['TESTING'] = True
 
-        deckstore.init(DATASTORE_SCHEMA_PATH)
-        self.app = microcarddeck.app.test_client()
+        deckserver.assign_data_store(DATASTORE_SCHEMA_PATH)
+        self.app = deckserver.app.test_client()
 
     def tearDown(self):
-        deckstore.term()
+        # No teardown of test fixtures required.
+        pass
 
     def test_root(self):
         rv = self.app.get('/')
         self.assertEqual(rv.status_code, 200)
 
     def test_schema(self):
-        rv = self.app.get(API_URL_PREFIX + '/schema')
+        rv = self.app.get(deckserver.API_URL_PREFIX + '/schema')
         self.assertEqual(rv.status_code, 200)
 
     @responses.activate
@@ -40,7 +39,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       body="[]", status=200,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.get(API_URL_PREFIX + '/decks')
+        rv = self.app.get(deckserver.API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), [])
 
@@ -52,7 +51,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       json=datastore_response, status=200,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.get(API_URL_PREFIX + '/decks')
+        rv = self.app.get(deckserver.API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), deckserver_response)
 
@@ -63,7 +62,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       body=None, status=204,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.post(API_URL_PREFIX + '/decks')
+        rv = self.app.post(deckserver.API_URL_PREFIX + '/decks')
         self.assertEqual(rv.status_code, 201)
         response_data = json.loads(rv.data.decode())
         self.assertIsInstance(response_data.get("id"), int)
@@ -76,7 +75,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       json=datastore_response, status=200,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.get(API_URL_PREFIX + '/decks/12345')
+        rv = self.app.get(deckserver.API_URL_PREFIX + '/decks/12345')
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(json.loads(rv.data.decode()), deckserver_response)
 
@@ -86,7 +85,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       body=None, status=404,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.get(API_URL_PREFIX + '/decks/12345')
+        rv = self.app.get(deckserver.API_URL_PREFIX + '/decks/12345')
         self.assertEqual(rv.status_code, 404)
 
     @responses.activate
@@ -95,7 +94,7 @@ class MicroCardDeckTestCase(unittest.TestCase):
                       body=None, status=204,
                       content_type=CONTENT_TYPE_JSON)
 
-        rv = self.app.delete(API_URL_PREFIX + '/decks/12345')
+        rv = self.app.delete(deckserver.API_URL_PREFIX + '/decks/12345')
         self.assertEqual(rv.status_code, 204)
 
 

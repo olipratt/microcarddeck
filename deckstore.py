@@ -11,45 +11,62 @@ logging.getLogger("pyswagger").setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 
 
-connection = None
-
-
-class DeckStoreConnection():
+class DeckStore:
+    """Definition of the datastore which client connections are made to."""
 
     def __init__(self, schema_path):
-        """Create a new connection to the deck store.
+        """Create a deck store.
 
         :param schema_path: The url or file path of the swagger schema of the
                             datastore to use.
         :type schema_path: str.
-
         """
         # Load Swagger schema.
         self._app = App.create(schema_path)
 
-        # Prepare references to API calls that will be used.
-        self._get_decks_list = self._app.op['get_apps_collection']
-        self._put_deck_data = self._app.op['put_apps_resource']
-        self._get_deck = self._app.op['get_apps_resource']
-        self._delete_deck = self._app.op['delete_apps_resource']
+        # Expose references to API calls that will be used.
+        # These are functions that return correctly formatted requests for
+        # client instances to send on to the server.
+        self.get_decks_list = self._app.op['get_apps_collection']
+        self.put_deck_data = self._app.op['put_apps_resource']
+        self.get_deck = self._app.op['get_apps_resource']
+        self.delete_deck = self._app.op['delete_apps_resource']
+
+
+class DeckStoreClient:
+
+    def __init__(self, deck_store):
+        """Create a new client to access the deck store.
+
+        :param deck_store: The definition of the store to connect to.
+        :type schema_path: DeckStore.
+        """
+        # Load Swagger schema.
+        self._deck_store = deck_store
 
         # Create a client which will send requests
-        self._client = Client(Security(self._app))
+        self._client = Client(Security(self._deck_store))
 
     def new_deck(self):
         """Create a new deck, and return its ID."""
-        deck_id = uuid.uuid1().int
+        # Just give each deck a truncated integer UUID as an ID for now.
+        # Use uuid4 as that's random, and hopefully won't collide in test use
+        # which is all this is really for.
+        deck_id = uuid.uuid4().int % 100000000
         log.debug("Creating new deck with ID: %r", deck_id)
 
-        resp = self._client.request(self._put_deck_data(appid=deck_id,
-                                                        payload={"data": {}}))
+        prepared_request = self._deck_store.put_deck_data(appid=deck_id,
+                                                          payload={"data": {}})
+        resp = self._client.request(prepared_request)
         assert resp.status == 204
         log.debug("Deck created successfully")
 
         return deck_id
 
     def list_decks(self):
-        resp = self._client.request(self._get_decks_list())
+        """Get a list of all deck IDs in the store."""
+        prepared_request = self._deck_store.get_decks_list()
+        resp = self._client.request(prepared_request)
         assert resp.status == 200
 
         response_data = resp.data
@@ -58,53 +75,18 @@ class DeckStoreConnection():
         return deck_ids
 
     def get_deck(self, deck_id):
+        """Get a single deck by ID, or None if it does not exist."""
         log.debug("Getting deck: %r", deck_id)
-        resp = self._client.request(self._get_deck(appid=deck_id))
+        prepared_request = self._deck_store.get_deck(appid=deck_id)
+        resp = self._client.request(prepared_request)
         if resp.status == 200:
             return {"id": resp.data.name, "cards_remaining": 0}
         else:
             return None
 
     def delete_deck(self, deck_id):
+        """Delete a single deck by ID."""
         log.debug("Deleting deck: %r", deck_id)
-        resp = self._client.request(self._delete_deck(appid=deck_id))
+        prepared_request = self._deck_store.delete_deck(appid=deck_id)
+        resp = self._client.request(prepared_request)
         assert resp.status == 204
-
-
-def init(schema_path):
-    """Initialise the deck store."""
-    global connection
-    assert connection is None
-
-    # Create the client connection.
-    connection = DeckStoreConnection(schema_path)
-
-
-def term():
-    """Terminate the deck store."""
-    global connection
-    connection = None
-
-
-def new_deck():
-    """Create a new deck, and return its ID."""
-    global connection
-    return connection.new_deck()
-
-
-def list_decks():
-    """List the IDs of all decks."""
-    global connection
-    return connection.list_decks()
-
-
-def get_deck(deck_id):
-    """Get a deck by ID."""
-    global connection
-    return connection.get_deck(deck_id)
-
-
-def delete_deck(deck_id):
-    """Delete a deck by ID."""
-    global connection
-    connection.delete_deck(deck_id)
