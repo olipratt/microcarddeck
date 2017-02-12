@@ -3,6 +3,9 @@ import uuid
 
 from pyswagger import App, Security
 from pyswagger.contrib.client.requests import Client
+# pyswagger makes INFO level logs regularly by default, so lower its logging
+# level to prevent the spam.
+logging.getLogger("pyswagger").setLevel(logging.WARNING)
 
 
 log = logging.getLogger(__name__)

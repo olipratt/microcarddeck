@@ -102,5 +102,4 @@ class MicroCardDeckTestCase(unittest.TestCase):
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)-15s:%(funcName)s:%(message)s',
                         level=logging.INFO)
-    logging.getLogger("pyswagger").setLevel(logging.WARNING)
     unittest.main()
