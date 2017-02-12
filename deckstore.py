@@ -25,8 +25,8 @@ class DeckStore:
         self._app = App.create(schema_path)
 
         # Expose references to API calls that will be used.
-        # These are functions that return correctly formatted requests for
-        # client instances to send on to the server.
+        # These are objects that when called return correctly formatted
+        # requests for client instances to send on to the server.
         self.get_decks_list = self._app.op['get_apps_collection']
         self.put_deck_data = self._app.op['put_apps_resource']
         self.get_deck = self._app.op['get_apps_resource']
