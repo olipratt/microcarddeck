@@ -8,16 +8,15 @@ Once running, go to the root URL to explore the API using [Swagger UI](http://sw
 
 ## Setup
 
+Requires at least Python 3, tested with 3.5.
+
 Relies on [Flask](http://flask.pocoo.org/docs/0.11/) and [Flask-RESTPlus](https://flask-restplus.readthedocs.io/en/stable/index.html) for the webserver and REST API, and [pyswagger](https://github.com/mission-liao/pyswagger) for the REST client side.
 
-Requires [responses](https://github.com/getsentry/responses) for unit testing.
+To get these clone the repository, open a terminal inside the repository directory and run:
 
 ```shell
-$ pip install flask flask-restplus pyswagger requests
-$ pip install responses
+$ pip install -r requirements.txt
 ```
-
-Then just clone or download and extract this repository to get started.
 
 ## Running
 
@@ -27,7 +26,7 @@ Run with `-h` for full usage options.
 $ python microcarddeck.py
 ```
 
-Run the tests by similarly running `python test_microcarddeck.py`.
+Run the tests by first installing the developer requirements with `pip install -r requirements-dev.txt` then running `python test_microcarddeck.py`.
 
 ## Usage
 
