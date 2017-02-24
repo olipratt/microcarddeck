@@ -33,3 +33,13 @@ Run the tests by first installing the developer requirements with `pip install -
 **NOTE:** All API methods are behind a `/api` base URL (Swagger UI hides this away at the very bottom of the web page).
 
 You can explore the API using Swagger UI by opening the root URL (that is printed to the terminal when you run the server) in your web browser.
+
+## Running in Docker
+
+A docker-compose and dockerfile are included to run a multi-microservice-container application. Assuming you've already downloaded and built the microstore image separately, build and run from the repository directory with:
+
+```
+$ sudo docker-compose up
+```
+
+Now you can navigate to `http://127.0.0.1:5000/` in your web browser to access the SwaggerUI of the card deck app.
