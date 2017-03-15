@@ -88,7 +88,7 @@ class DeckCollection(Resource):
         return {"id": deck_id}, 201
 
 
-@deck_ns.route('/<deckid>')
+@deck_ns.route('/<int:deckid>')
 @api.response(404, 'Deck not found.')
 class AppsResource(Resource):
     """ Individual resources representing a deck. """
@@ -100,7 +100,7 @@ class AppsResource(Resource):
         deck_data = DeckStoreClient(deck_store).get_deck(deckid)
         if deck_data is None:
             log.debug("No deck found")
-            return None, 404
+            api.abort(404, "Deck {} does not exist".format(deckid))
         else:
             log.debug("Found deck")
             return deck_data
