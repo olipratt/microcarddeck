@@ -24,13 +24,19 @@ class DeckStore:
         # Load Swagger schema.
         self._app = App.create(schema_path)
 
-        # Expose references to API calls that will be used.
+        # Expose references to API operations that will be used.
         # These are objects that when called return correctly formatted
         # requests for client instances to send on to the server.
-        self.get_decks_list = self._app.op['get_apps_collection']
-        self.put_deck_data = self._app.op['put_apps_resource']
-        self.get_deck = self._app.op['get_apps_resource']
-        self.delete_deck = self._app.op['delete_apps_resource']
+        # There are two ways to reference these - by name in the schema, or by
+        # path within the API and operation - both are shown for completeness.
+        # self.get_decks_list = self._app.op['get_apps_collection']
+        self.get_decks_list = self._app.s('apps').get
+        # self.put_deck_data = self._app.op['put_apps_resource']
+        self.put_deck_data = self._app.s('apps/{appid}').put
+        # self.get_deck = self._app.op['get_apps_resource']
+        self.get_deck = self._app.s('apps/{appid}').get
+        # self.delete_deck = self._app.op['delete_apps_resource']
+        self.delete_deck = self._app.s('apps/{appid}').delete
 
 
 class DeckStoreClient:
